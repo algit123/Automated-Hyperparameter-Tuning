@@ -18,42 +18,37 @@ In this notebook, we use Bayesian Optimization to automatically tune hyperparame
 
 ## Import Packages 
 
-import numpy as np
-
-import GPy
-
-import GPyOpt
-
-import matplotlib
-
-import matplotlib.pyplot as plt
-
-import sklearn
-
-from sklearn.svm import SVR
-
-import sklearn.datasets
-
-import xgboost
-
-from xgboost import XGBRegressor
-
-from sklearn.model_selection import cross_val_score
-
-import time
-
-%matplotlib inline
+import numpy as np \
+import GPy \
+import GPyOpt \
+import matplotlib \
+import matplotlib.pyplot as plt \
+import sklearn \
+from sklearn.svm import SVR \
+import sklearn.datasets \
+import xgboost \
+from xgboost import XGBRegressor \
+from sklearn.model_selection import cross_val_score \
+import time \
+%matplotlib inline \
 
 ## Package versions
 
-for p in [np, GPy, GPyOpt, sklearn, xgboost, matplotlib]:
-    print (p.__name__, p.__version__)
+for p in [np, GPy, GPyOpt, sklearn, xgboost, matplotlib]: \
+        print (p.__name__, p.__version__)
+        
+numpy 1.17.5\
+GPy 1.9.9\
+GPyOpt 1.2.5 \
+sklearn 0.22.1 \
+xgboost 0.90 \
+matplotlib 3.1.3 \
 
 ## Load Data
 
-dataset = sklearn.datasets.load_diabetes()
-X = dataset['data']
-y = dataset['target']
+dataset = sklearn.datasets.load_diabetes() \
+X = dataset['data'] \
+y = dataset['target'] \
 
 ## 1- Xgboost
 
@@ -65,68 +60,69 @@ Parameters tuned:
 * gamma
 
 #### Score. Optimizer will try to find minimum, so we will add a "-" sign.
-def f(parameters):
-    parameters = parameters[0]
-    score = -cross_val_score(
-        XGBRegressor(learning_rate=parameters[0],
-                     max_depth=int(parameters[2]),
-                     n_estimators=int(parameters[3]),
-                     gamma=int(parameters[1]),
-                     min_child_weight = parameters[4]), 
-        X, y, scoring='neg_mean_squared_error'
-    ).mean()
-    score = np.array(score)
-    return score
+def f(parameters):\
+    parameters = parameters[0]\
+    score = -cross_val_score(\
+        XGBRegressor(learning_rate=parameters[0], \
+                     max_depth=int(parameters[2]), \
+                     n_estimators=int(parameters[3]), \
+                     gamma=int(parameters[1]), \
+                     min_child_weight = parameters[4]), \
+        X, y, scoring='neg_mean_squared_error'\
+    ).mean() \
+    score = np.array(score) \
+    return score \
 
-baseline = -cross_val_score(
-    XGBRegressor(), X, y, scoring='neg_mean_squared_error'
-).mean()
-baseline
+baseline = -cross_val_score( \
+    XGBRegressor(), X, y, scoring='neg_mean_squared_error'\
+).mean()\
+baseline \
 
 #### Bounds (NOTE: define continuous variables first, then discrete!)
-bounds = [
-    {'name': 'learning_rate',
-     'type': 'continuous',
-     'domain': (0, 1)},
+bounds = [ \
+    {'name': 'learning_rate', \
+     'type': 'continuous', \
+     'domain': (0, 1)}, \
 
-    {'name': 'gamma',
-     'type': 'continuous',
-     'domain': (0, 5)},
+    {'name': 'gamma', \
+     'type': 'continuous', \
+     'domain': (0, 5)}, \
 
-    {'name': 'max_depth',
-     'type': 'discrete',
-     'domain': (1, 50)},
+    {'name': 'max_depth', \
+     'type': 'discrete', \
+     'domain': (1, 50)}, \
 
-    {'name': 'n_estimators',
-     'type': 'discrete',
-     'domain': (1, 300)},
+    {'name': 'n_estimators', \
+     'type': 'discrete', \
+     'domain': (1, 300)}, \
 
-    {'name': 'min_child_weight',
-     'type': 'discrete',
-     'domain': (1, 10)}
-]
+    {'name': 'min_child_weight', \
+     'type': 'discrete', \
+     'domain': (1, 10)} \
+] \
 
-np.random.seed(777)
-optimizer = GPyOpt.methods.BayesianOptimization(
-    f=f, domain=bounds,
-    acquisition_type ='MPI',
-    acquisition_par = 0.1,
-    exact_eval=True
-)
+np.random.seed(777) \
+optimizer = GPyOpt.methods.BayesianOptimization( \
+    f=f, domain=bounds, \
+    acquisition_type ='MPI', \
+    acquisition_par = 0.1, \
+    exact_eval=True \
+) \
 
-max_iter = 50
-max_time = 60
-optimizer.run_optimization(max_iter, max_time)
-
+max_iter = 50 \
+max_time = 60 \
+optimizer.run_optimization(max_iter, max_time) \
 
 optimizer.plot_convergence()
 
-Best values of parameters:
+#### Best values of parameters:
 
 optimizer.X[np.argmin(optimizer.Y)]
 
-print('MSE:', np.min(optimizer.Y),
+print('MSE:', np.min(optimizer.Y), \
       'Gain:', baseline/np.min(optimizer.Y)*100)
+
+MSE: 3189.185708011576 Gain: 107.77278973061391
 
 **Result:**   We obtained a 7.7% performance gain over the baseline (default parameter values, and no tuning)
 
@@ -138,57 +134,58 @@ Parameters tuned:
 * gamma
 
 #### Score. Optimizer will try to find minimum, so we will add a "-" sign.
-def f(parameters):
-    parameters = parameters[0]
-    score = -cross_val_score(
-        SVR(C=parameters[0],
-            epsilon=float(parameters[1]),
-            gamma=float(parameters[2])), 
-        X, y, scoring='neg_mean_squared_error'
-    ).mean()
-    score = np.array(score)
-    return score
+def f(parameters):\
+    parameters = parameters[0]\
+    score = -cross_val_score(\
+        SVR(C=parameters[0],\
+            epsilon=float(parameters[1]),\
+            gamma=float(parameters[2])), \
+        X, y, scoring='neg_mean_squared_error'\
+    ).mean() \
+    score = np.array(score) \
+    return score \
 
-baseline = -cross_val_score(
-    SVR(), X, y, scoring='neg_mean_squared_error'
-).mean()
-baseline
+baseline = -cross_val_score( \
+    SVR(), X, y, scoring='neg_mean_squared_error' \
+).mean() \
+baseline \
 
 #### Bounds (NOTE: define continuous variables first, then discrete!)
-bounds = [
-    {'name': 'C',
-     'type': 'continuous',
-     'domain': (1e-5, 1000)},
+bounds = [ \
+    {'name': 'C', \
+     'type': 'continuous', \
+     'domain': (1e-5, 1000)}, \
 
-    {'name': 'epsilon',
-     'type': 'continuous',
-     'domain': (1e-5, 10)},
+    {'name': 'epsilon', \
+     'type': 'continuous', \
+     'domain': (1e-5, 10)}, \
 
-    {'name': 'gamma',
-     'type': 'continuous',
-     'domain': (1e-5, 10)}
-]
+    {'name': 'gamma', \
+     'type': 'continuous', \
+     'domain': (1e-5, 10)} \
+] \
 
-np.random.seed(777)
-optimizer = GPyOpt.methods.BayesianOptimization(
-    f=f, domain=bounds,
-    acquisition_type ='MPI',
-    acquisition_par = 0.1,
-    exact_eval=True
-)
+np.random.seed(777) \
+optimizer = GPyOpt.methods.BayesianOptimization( \
+    f=f, domain=bounds, \
+    acquisition_type ='MPI', \
+    acquisition_par = 0.1, \
+    exact_eval=True \
+) \
 
-max_iter = 50
-max_time = 60
-optimizer.run_optimization(max_iter, max_time)
+max_iter = 50 \
+max_time = 60 \
+optimizer.run_optimization(max_iter, max_time) \
 
 optimizer.plot_convergence()
 
-Best value of parameters
-
 #### Best value of parameters
+
 optimizer.X[np.argmin(optimizer.Y)]
 
-print('MSE:', np.min(optimizer.Y),
+print('MSE:', np.min(optimizer.Y), \
       'Gain:', baseline/np.min(optimizer.Y)*100)
+
+MSE: 2911.470304239638 Gain: 170.9327371561875
 
 **Result:**  We achieved a 70.9% gain over the baseline (default parameter values and no tuning)
