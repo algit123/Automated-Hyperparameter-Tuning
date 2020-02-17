@@ -30,7 +30,7 @@ import xgboost \
 from xgboost import XGBRegressor \
 from sklearn.model_selection import cross_val_score \
 import time \
-%matplotlib inline \
+%matplotlib inline 
 
 ## Package versions
 
@@ -42,13 +42,13 @@ GPy 1.9.9\
 GPyOpt 1.2.5 \
 sklearn 0.22.1 \
 xgboost 0.90 \
-matplotlib 3.1.3 \
+matplotlib 3.1.3 
 
 ## Load Data
 
 dataset = sklearn.datasets.load_diabetes() \
 X = dataset['data'] \
-y = dataset['target'] \
+y = dataset['target'] 
 
 ## 1- Xgboost
 
@@ -71,35 +71,35 @@ def f(parameters):\
         X, y, scoring='neg_mean_squared_error'\
     ).mean() \
     score = np.array(score) \
-    return score \
+    return score 
 
 baseline = -cross_val_score( \
     XGBRegressor(), X, y, scoring='neg_mean_squared_error'\
 ).mean()\
-baseline \
+baseline 
 
 #### Bounds (NOTE: define continuous variables first, then discrete!)
 bounds = [ \
     {'name': 'learning_rate', \
      'type': 'continuous', \
-     'domain': (0, 1)}, \
+     'domain': (0, 1)}, 
 
-    {'name': 'gamma', \
-     'type': 'continuous', \
-     'domain': (0, 5)}, \
+    {'name': 'gamma', 
+     'type': 'continuous', 
+     'domain': (0, 5)}, 
 
-    {'name': 'max_depth', \
-     'type': 'discrete', \
-     'domain': (1, 50)}, \
+    {'name': 'max_depth', 
+     'type': 'discrete', 
+     'domain': (1, 50)}, 
 
-    {'name': 'n_estimators', \
-     'type': 'discrete', \
-     'domain': (1, 300)}, \
+    {'name': 'n_estimators', 
+     'type': 'discrete', 
+     'domain': (1, 300)}, 
 
-    {'name': 'min_child_weight', \
-     'type': 'discrete', \
-     'domain': (1, 10)} \
-] \
+    {'name': 'min_child_weight', 
+     'type': 'discrete', 
+     'domain': (1, 10)} 
+] 
 
 np.random.seed(777) \
 optimizer = GPyOpt.methods.BayesianOptimization( \
@@ -107,11 +107,11 @@ optimizer = GPyOpt.methods.BayesianOptimization( \
     acquisition_type ='MPI', \
     acquisition_par = 0.1, \
     exact_eval=True \
-) \
+) 
 
 max_iter = 50 \
 max_time = 60 \
-optimizer.run_optimization(max_iter, max_time) \
+optimizer.run_optimization(max_iter, max_time) 
 
 optimizer.plot_convergence()
 
@@ -143,27 +143,27 @@ def f(parameters):\
         X, y, scoring='neg_mean_squared_error'\
     ).mean() \
     score = np.array(score) \
-    return score \
+    return score 
 
 baseline = -cross_val_score( \
     SVR(), X, y, scoring='neg_mean_squared_error' \
 ).mean() \
-baseline \
+baseline 
 
 #### Bounds (NOTE: define continuous variables first, then discrete!)
 bounds = [ \
     {'name': 'C', \
      'type': 'continuous', \
-     'domain': (1e-5, 1000)}, \
+     'domain': (1e-5, 1000)}, 
 
     {'name': 'epsilon', \
      'type': 'continuous', \
-     'domain': (1e-5, 10)}, \
+     'domain': (1e-5, 10)}, 
 
     {'name': 'gamma', \
      'type': 'continuous', \
-     'domain': (1e-5, 10)} \
-] \
+     'domain': (1e-5, 10)} 
+] 
 
 np.random.seed(777) \
 optimizer = GPyOpt.methods.BayesianOptimization( \
@@ -171,11 +171,11 @@ optimizer = GPyOpt.methods.BayesianOptimization( \
     acquisition_type ='MPI', \
     acquisition_par = 0.1, \
     exact_eval=True \
-) \
+) 
 
 max_iter = 50 \
 max_time = 60 \
-optimizer.run_optimization(max_iter, max_time) \
+optimizer.run_optimization(max_iter, max_time) 
 
 optimizer.plot_convergence()
 
